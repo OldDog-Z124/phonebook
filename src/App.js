@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+
+import personsService from './services/persons'
 
 const Filter = ({ value, handleChange }) => {
   
@@ -31,12 +32,15 @@ const PersonForm = ({ name, handleNameChange, number, handleNumberChange, addPer
   )
 }
 
-const Persons = ({persons}) => {
+const Persons = ({persons, deletePerson}) => {
 
   return (
     <div>
       {persons.map(person => 
-        <p key={person.name}>{person.name} {person.number}</p>
+        <p key={person.name}>
+          {person.name} {person.number}
+          <button onClick={() => deletePerson(person.id)}>delete</button>
+        </p>
       )}
     </div>
   )
@@ -50,10 +54,10 @@ const App = () => {
   const [filterword, setFilterword] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personsService
+      .getAll()
+      .then(initiaPersons => {
+        setPersons(initiaPersons)
       })
   }, [])
 
@@ -79,15 +83,23 @@ const App = () => {
         number: newNumber,
       }
   
-      axios
-        .post('http://localhost:3001/persons', personObject)
-        .then(response => {
-          setPersons(persons.concat(response.data))
+      personsService
+        .create(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
         })
     }
 
     setNewName('')
     setNewNumber('')
+  }
+
+  const deletePerson = (id) => {
+    personsService
+      .deletePerson(id)
+      .then(response => {
+        setPersons(persons.filter(person => person.id !== id))
+      })
   }
 
   const handleFilterwordChange = (event) => {
@@ -110,7 +122,7 @@ const App = () => {
         addPerson={addNewPerson}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} deletePerson={deletePerson} />
     </div>
   )
 }
