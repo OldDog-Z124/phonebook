@@ -55,7 +55,7 @@ const App = () => {
       .then(response => {
         setPersons(response.data)
       })
-  })
+  }, [])
 
   let personsToShow = persons.filter(person => person.name.includes(filterword))
 
