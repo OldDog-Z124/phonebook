@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import personsService from './services/persons'
 
 const Filter = ({ value, handleChange }) => {
-  
   return (
     <p>
       filter shown with
@@ -16,7 +15,6 @@ const Filter = ({ value, handleChange }) => {
 }
 
 const PersonForm = ({ name, handleNameChange, number, handleNumberChange, onSubmit }) => {
-  
   return (
     <form onSubmit={onSubmit}>
       <div>
@@ -33,7 +31,6 @@ const PersonForm = ({ name, handleNameChange, number, handleNumberChange, onSubm
 }
 
 const Persons = ({persons, deletePerson}) => {
-
   return (
     <div>
       {persons.map(person => 
@@ -71,7 +68,11 @@ const App = () => {
     setNewNumber(event.target.value) 
   }
 
-  const addNewPerson = (event) => {
+  const handleFilterwordChange = (event) => {
+    setFilterword(event.target.value)
+  }
+
+  const addNewPerson = () => {
     const personObject = {
       name: newName,
       number: newNumber,
@@ -86,13 +87,20 @@ const App = () => {
 
   const updatePerson = () => {
     const person = persons.find(person => person.name === newName)
-
     const changePerson = {...person, number: newNumber}
 
     personsService
       .update(person.id, changePerson)
       .then(returnedPerson => {
         setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+      })
+  }
+
+  const deletePerson = (id) => {
+    personsService
+      .deletePerson(id)
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== id))
       })
   }
 
@@ -109,18 +117,6 @@ const App = () => {
     }
     setNewName('')
     setNewNumber('')
-  }
-
-  const deletePerson = (id) => {
-    personsService
-      .deletePerson(id)
-      .then(response => {
-        setPersons(persons.filter(person => person.id !== id))
-      })
-  }
-
-  const handleFilterwordChange = (event) => {
-    setFilterword(event.target.value)
   }
 
   return (
