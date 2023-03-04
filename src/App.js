@@ -15,10 +15,10 @@ const Filter = ({ value, handleChange }) => {
   )
 }
 
-const PersonForm = ({ name, handleNameChange, number, handleNumberChange, addPerson }) => {
+const PersonForm = ({ name, handleNameChange, number, handleNumberChange, onSubmit }) => {
   
   return (
-    <form onSubmit={addPerson}>
+    <form onSubmit={onSubmit}>
       <div>
         name: <input value={name} onChange={handleNameChange} />
       </div>
@@ -72,24 +72,41 @@ const App = () => {
   }
 
   const addNewPerson = (event) => {
+    const personObject = {
+      name: newName,
+      number: newNumber,
+    }
+
+    personsService
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
+      })
+  }
+
+  const updatePerson = () => {
+    const person = persons.find(person => person.name === newName)
+
+    const changePerson = {...person, number: newNumber}
+
+    personsService
+      .update(person.id, changePerson)
+      .then(returnedPerson => {
+        setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+      })
+  }
+
+  const handlePersonFormSubmit = (event) => {
     event.preventDefault()
 
     if (persons.find(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+      if (window.confirm(`${newName} is already added to phonebook, replaace the old number with a new one?`)) {
+        updatePerson()
+      }
     }
     else {
-      const personObject = {
-        name: newName,
-        number: newNumber,
-      }
-  
-      personsService
-        .create(personObject)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson))
-        })
+      addNewPerson()
     }
-
     setNewName('')
     setNewNumber('')
   }
@@ -119,7 +136,7 @@ const App = () => {
         handleNameChange={handleNameChange}
         number={newNumber}
         handleNumberChange={handleNumberChange}
-        addPerson={addNewPerson}
+        onSubmit={handlePersonFormSubmit}
       />
       <h2>Numbers</h2>
       <Persons persons={personsToShow} deletePerson={deletePerson} />

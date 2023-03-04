@@ -12,6 +12,13 @@ const create = (newPerson) => {
   return request.then(response => response.data)
 }
 
+const update = (id, newPerson) => {
+  const url = `${baseUrl}/${id}`
+
+  const request = axios.put(url, newPerson)
+  return request.then(response => response.data)
+}
+
 const deletePerson = (id) => {
   const url = `${baseUrl}/${id}`
 
@@ -19,6 +26,6 @@ const deletePerson = (id) => {
   return request
 }
 
-const personsService = {getAll, create, deletePerson}
+const personsService = {getAll, create, update, deletePerson}
 
 export default personsService
