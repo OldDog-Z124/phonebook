@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 
 import personsService from './services/persons'
 
+import Notification from './components/Notification'
+
 const Filter = ({ value, handleChange }) => {
   return (
     <p>
@@ -36,7 +38,7 @@ const Persons = ({persons, deletePerson}) => {
       {persons.map(person => 
         <p key={person.name}>
           {person.name} {person.number}
-          <button onClick={() => deletePerson(person.id)}>delete</button>
+          <button onClick={() => deletePerson(person.id, person)}>delete</button>
         </p>
       )}
     </div>
@@ -49,6 +51,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterword, setFilterword] = useState('')
+  const [message, setMessage] = useState({})
 
   useEffect(() => {
     personsService
@@ -72,6 +75,15 @@ const App = () => {
     setFilterword(event.target.value)
   }
 
+  const addMessage = (text, type) => {
+    const object = {
+      text,
+      type
+    }
+    setMessage(object)
+    setTimeout(() => setMessage({}), 5000)
+  }
+
   const addNewPerson = () => {
     const personObject = {
       name: newName,
@@ -82,6 +94,7 @@ const App = () => {
       .create(personObject)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
+        addMessage(`Added ${newName}`, 'succeed')
       })
   }
 
@@ -96,11 +109,15 @@ const App = () => {
       })
   }
 
-  const deletePerson = (id) => {
+  const deletePerson = (id, person) => {
     personsService
       .deletePerson(id)
-      .then(() => {
+      .then(repsonse => {
         setPersons(persons.filter(person => person.id !== id))
+        addMessage(`Deleted ${person.name}`, 'succeed')
+      })
+      .catch(error => {
+        addMessage(`Information of ${person.name} has already been removed from server`, 'error')
       })
   }
 
@@ -122,6 +139,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message.text} type={message.type} />
       <Filter 
         value={filterword}
         handleChange={handleFilterwordChange}
