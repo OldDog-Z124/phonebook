@@ -1,6 +1,8 @@
 const Notification = ({message, type}) => {
-  console.log(message)
+  
   if (!message) return null
+
+  console.log(message)
 
   const style = {
     padding: '10px 20px',
