@@ -2,21 +2,22 @@ import { useState, useEffect } from 'react'
 
 import personsService from '../../services/persons'
 
-import Notification from '../../components/Notification'
+import AlertLine from '../../components/AlertLine'
+
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
+import Collapse from '@mui/material/Collapse'
 
 import Filter from './Filter'
 import PersonForm from './PersonForm'
 import Persons from './Persons'
 
-
-
-const Home = () => {
+const Home = (props) => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterword, setFilterword] = useState('')
+  const [isAlert, setIsAlert] = useState(false)
   const [message, setMessage] = useState({})
 
   useEffect(() => {
@@ -46,8 +47,8 @@ const Home = () => {
       text,
       type
     }
+    setIsAlert(true)
     setMessage(object)
-    setTimeout(() => setMessage({}), 5000)
   }
 
   const addNewPerson = () => {
@@ -60,7 +61,7 @@ const Home = () => {
       .create(personObject)
       .then(returnedPerson => {
         setPersons(persons.concat(returnedPerson))
-        addMessage(`Added ${newName}`, 'succeed')
+        addMessage(`Added ${newName}`, 'success')
       })
   }
 
@@ -72,6 +73,7 @@ const Home = () => {
       .update(person.id, changePerson)
       .then(returnedPerson => {
         setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+        addMessage(`Update ${newName}`, 'success')
       })
   }
 
@@ -80,7 +82,7 @@ const Home = () => {
       .deletePerson(id)
       .then(repsonse => {
         setPersons(persons.filter(person => person.id !== id))
-        addMessage(`Deleted ${person.name}`, 'succeed')
+        addMessage(`Deleted ${person.name}`, 'success')
       })
       .catch(error => {
         addMessage(`Information of ${person.name} has already been removed from server`, 'error')
@@ -105,13 +107,17 @@ const Home = () => {
   return (
     <Container maxWidth='sm'>
       <Typography variant='h2' component='h1' sx={{textAlign: 'center', margin: 3 }}>Phonebook</Typography>
-      <Notification message={message.text} type={message.type} />
       
+      <Collapse in={isAlert}>
+        <AlertLine message={message} setMessage={setMessage} setIsAlert={setIsAlert} />
+      </Collapse>
+      
+
       <Filter 
         value={filterword}
         handleChange={handleFilterwordChange}
       />
-      
+
       <PersonForm
         name={newName}
         handleNameChange={handleNameChange}

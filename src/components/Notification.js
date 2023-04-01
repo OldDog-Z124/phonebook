@@ -11,7 +11,7 @@ const Notification = ({message, type}) => {
     fontSize: 20,
   }
   
-  if (type === 'succeed') {
+  if (type === 'success') {
     style.color = 'green'
     style.borderColor = 'green'
   }
