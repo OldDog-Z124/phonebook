@@ -63,6 +63,10 @@ const Home = (props) => {
         setPersons(persons.concat(returnedPerson))
         addMessage(`Added ${newName}`, 'success')
       })
+      .catch(error => {
+        const message = error.response.data.error
+        addMessage(message, 'error')
+      })
   }
 
   const updatePerson = () => {
@@ -74,6 +78,10 @@ const Home = (props) => {
       .then(returnedPerson => {
         setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
         addMessage(`Update ${newName}`, 'success')
+      })
+      .catch(error => {
+        const message = error.response.data.error
+        addMessage(message, 'error')
       })
   }
 
